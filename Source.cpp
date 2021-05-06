@@ -9,6 +9,8 @@
 #include <map>
 #include <sstream>
 
+#include "Header.h";
+
 using namespace std;
 
 string dir = "C:\\Users\\Stefan\\source\\repos\\Assignment2\\Assign2FIles\\";
@@ -90,10 +92,11 @@ void addFileLinesToVector(string fileNameZ, vector<string>& stringVectorReferenc
 		if (debug1) cout << "DEBUG1 - line " << ++i << " is:" << fileLineString << endl;
 		fileLineString = trim(fileLineString);
 		
-		if (fileLineString[0] != '/') {
+		/*if (fileLineString[0] != '/') {
 			stringVectorReference.push_back(fileLineString);
-		}
+		}*/
 
+		stringVectorReference.push_back(fileLineString);
 		cout << "Read line: " << fileLineString << endl;
 	}
 
@@ -146,8 +149,86 @@ void doP3(vector<string>& inVec, map<string, float>& keyValueList)
 
 }
 
-void doP2(vector<string>& inVec, map<string, float>& keyValueList)
+
+//float handleMathOperation(float currentTotal, string mathOp, float value) {
+//	switch (mathOp) {
+//	case "+": return currentTotal + value;
+//	}
+//}
+
+vector<valueOperatorPair> deserialiseStringMathEquation(string serialisedString) {
+	vector<valueOperatorPair> response;
+	string numberStringValue;
+
+	int i = 0;
+	while (i < 5) {
+		int returnStringLength = 0;
+		stringstream stringStream(serialisedString);
+		char numerator = '+';
+
+		getline(stringStream, numberStringValue, '+');
+
+		if (numberStringValue == "") {
+			getline(stringStream, numberStringValue, '-');
+		}
+
+		try {
+			valueOperatorPair mathObject;
+			
+			// Setup object
+			returnStringLength = numberStringValue.length();
+			mathObject.value = stof(numberStringValue);
+			mathObject.mathOperator = numerator;
+
+			// update numerator for next run
+			if (serialisedString.substr(returnStringLength - 1, serialisedString.length())[0] == '-') {
+				numerator = '-';
+			};
+			numerator = '+';
+
+			serialisedString = serialisedString.substr(returnStringLength, serialisedString.length());
+		}
+		catch (const std::exception& e) {
+			break;
+		}
+
+		i++;
+	};
+
+	return response;
+}
+
+// Not using global reference
+void doP2(vector<string> fileLineVector)
 {
+	vector<vector<valueOperatorPair>> valuesList;
+	string stringValue;
+	int i = 0;
+
+	for (string value : fileLineVector) {
+
+		cout << "This is the result of the P2 run\n";
+
+		valuesList.push_back(deserialiseStringMathEquation(value));
+
+		//cout << "This is the result of the P2 run\n";
+
+		/*if (value.length() == key.length()) {
+			cout << "Error line:" << i << endl;
+			cout << "Error:" << value << endl;
+		}
+		else {
+			int keyLength = key.length() + 1;
+			int valueLength = value.length() - 1;
+
+			string stringNumber = value.substr(keyLength, valueLength);
+
+			cout << "This is the result of the P2 run\n";
+		}*/
+
+		i++;
+	}
+
 	cout << "This is the result of the P2 run\n";
 	cout << "--------------------------------\n";
 
@@ -159,8 +240,6 @@ string deserialiseStringByEquals(string serialisedString) {
 
 	getline(stringStream, response, '=');
 
-	// TODO: Test if response has value if not throw no equals error
-
 	return response;
 }
 
@@ -168,26 +247,37 @@ void doP1(vector<string>& fileLineVector, map<string, float>& keyValueListRef)
 {
 	keyValueList.clear();
 
+
+	cout << "This is the result of the P1 run\n";
+	cout << "--------------------------------\n";
+	cout << "(No output except errors it just sets the values)\n";
+
 	string key;
 	string stringValue;
+	int i = 0;
 
 	for (string value : fileLineVector) {
 
 		key = deserialiseStringByEquals(value);
 
-		int keyLength = key.length() + 1;
-		int valueLength = value.length() - 1;
+		if (value.length() == key.length()) {
+			cout << "Error line:" << value << endl;
+			cout << "Error:" << i << endl;
+		}
+		else {
+			int keyLength = key.length() + 1;
+			int valueLength = value.length() - 1;
 
-		string stringNumber = value.substr(keyLength, valueLength);
+			string stringNumber = value.substr(keyLength, valueLength);
 
-		float numberValue = stof(stringNumber);
+			float numberValue = stof(stringNumber);
 
-		keyValueListRef.insert(make_pair(key, numberValue));
+			keyValueListRef.insert(make_pair(key, numberValue));
+		}
+
+		i++;
 	}
 
-	cout << "This is the result of the P1 run\n";
-	cout << "--------------------------------\n";
-	cout << "(No output except errors it just sets the values)\n";
 }
 
 
@@ -245,14 +335,19 @@ int main()
 		}
 
 		if (opt == "P1E") { addFileLinesToVector(FNAME1e, fileStringList); showVector(fileStringList); doP1(fileStringList, keyValueList); showMap(keyValueList); }
-		if (opt == "P2") { addFileLinesToVector(FNAME2, fileStringList); showVector(fileStringList); doP2(fileStringList, keyValueList); showMap(keyValueList); }
-		if (opt == "P2E") { addFileLinesToVector(FNAME2e, fileStringList); showVector(fileStringList); doP2(fileStringList, keyValueList); showMap(keyValueList); }
+
+		if (opt == "P2") { addFileLinesToVector(FNAME2, fileStringList); showVector(fileStringList); doP2(fileStringList); showMap(keyValueList); }
+		if (opt == "P2E") { addFileLinesToVector(FNAME2e, fileStringList); showVector(fileStringList); doP2(fileStringList); showMap(keyValueList); }
+
 		if (opt == "P3") { addFileLinesToVector(FNAME3, fileStringList); showVector(fileStringList); doP3(fileStringList, keyValueList); showMap(keyValueList); }
 		if (opt == "P3E") { addFileLinesToVector(FNAME3e, fileStringList); showVector(fileStringList); doP3(fileStringList, keyValueList); showMap(keyValueList); }
+
 		if (opt == "P4") { addFileLinesToVector(FNAME4, fileStringList); showVector(fileStringList); doP4(fileStringList, keyValueList); showMap(keyValueList); }
 		if (opt == "P4E") { addFileLinesToVector(FNAME4e, fileStringList); showVector(fileStringList); doP4(fileStringList, keyValueList); showMap(keyValueList); }
+
 		if (opt == "P5") { addFileLinesToVector(FNAME5, fileStringList); showVector(fileStringList); doP5(fileStringList, keyValueList); showMap(keyValueList); }
 		if (opt == "P5E") { addFileLinesToVector(FNAME5e, fileStringList); showVector(fileStringList); doP5(fileStringList, keyValueList); showMap(keyValueList); }
+
 		if (opt == "T") { addFileLinesToVector(FNAMET, fileStringList); showVector(fileStringList); doP1(fileStringList, keyValueList); showMap(keyValueList); }
 		if (opt == "D") debug4 = !debug4;
 		//if (opt == "M1")  // example for students
@@ -265,3 +360,4 @@ int main()
 	}
 	std::cout << "Program Exits\n";
 }
+
